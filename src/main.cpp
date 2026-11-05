@@ -5196,7 +5196,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             return false;
         }
 
-        int nRequiredVersion = (chainActive.Tip() && chainActive.Tip()->nHeight >= 220000) ? PROTOCOL_VERSION : (chainparams.GetConsensus().IsProtocolV3_1(GetAdjustedTime()) ? PROTOCOL_VERSION : MIN_PEER_PROTO_VERSION);
+        int nRequiredVersion;
+        if (chainActive.Tip() && chainActive.Tip()->nHeight >= 220000) {
+            // Hard fork at block 220000: require the new protocol version
+            nRequiredVersion = PROTOCOL_VERSION;
+        } else {
+            // Before the fork, accept all peers down to the minimum
+            nRequiredVersion = MIN_PEER_PROTO_VERSION;
+        }
         if (pfrom->nVersion < nRequiredVersion)
         {
             // disconnect and ban peers using obsolete protocol version after hard fork
