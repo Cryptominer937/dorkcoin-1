@@ -1772,7 +1772,7 @@ CAmount GetProofOfStakeSubsidy(int nHeight)
     // Linear degradation of staking rewards
     // Start: block 220,000 at 100 DORK
     // End: block 1,270,000 at 1 DORK (permanent tail)
-    const int nStartBlock = 220000;
+    const int nStartBlock = REWARD_SCHEDULE_START_HEIGHT;
     const int nEndBlock = 1270000;
     const CAmount nStartReward = 100 * COIN;
     const CAmount nEndReward = 1 * COIN;
@@ -5199,8 +5199,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
 
         int nRequiredVersion;
-        if (chainActive.Tip() && chainActive.Tip()->nHeight >= 220000) {
-            // Hard fork at block 220000: require the new protocol version
+        if (chainActive.Tip() && chainActive.Tip()->nHeight >= REWARD_SCHEDULE_START_HEIGHT) {
+            // From the reward schedule start height: require the new protocol version
             nRequiredVersion = PROTOCOL_VERSION;
         } else {
             // Before the fork, accept all peers down to the minimum

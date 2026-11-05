@@ -16,6 +16,8 @@ static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
 static const int COINBASE_MATURITY = 100;
 /** Kernel input must have this number of confirmations (network rule) */
 static const int STAKE_MIN_CONFIRMATIONS = 100;
+/** Height at which the staking reward schedule starts; also the height from which peers must use the current protocol version (network rule) */
+static const int REWARD_SCHEDULE_START_HEIGHT = 220000;
 
 /** Flags for nSequence and nLockTime locks */
 enum {
