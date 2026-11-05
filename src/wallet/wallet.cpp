@@ -724,7 +724,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         static int nMaxStakeSearchInterval = 60;
         bool fKernelFound = false;
-        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
+        // a best header that failed validation (e.g. an old-rule block) must not stop staking
+        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && (pindexPrev == pindexBestHeader || (pindexBestHeader->nStatus & BLOCK_FAILED_MASK)); n++)
         {
             boost::this_thread::interruption_point();
             // Search backward in time from the given txNew timestamp

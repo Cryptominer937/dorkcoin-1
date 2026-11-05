@@ -3792,7 +3792,9 @@ bool SignBlock(CBlock& block, CWallet& wallet, int64_t& nFees)
     {
         if (wallet.CreateCoinStake(wallet, block.nBits, 1, nFees, txCoinStake, key))
         {
-            if (txCoinStake.nTime >= pindexBestHeader->GetPastTimeLimit()+1)
+            // ignore a best header that failed validation (e.g. an old-rule block); use the tip instead
+            const CBlockIndex* pindexTimeRef = (pindexBestHeader->nStatus & BLOCK_FAILED_MASK) ? chainActive.Tip() : pindexBestHeader;
+            if (txCoinStake.nTime >= pindexTimeRef->GetPastTimeLimit()+1)
             {
                 // make sure coinstake would meet timestamp protocol
                 // as it would be the same as the block timestamp
