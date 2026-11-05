@@ -5196,12 +5196,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             return false;
         }
 
-        if (pfrom->nVersion < (chainparams.GetConsensus().IsProtocolV3_1(GetAdjustedTime()) ? PROTOCOL_VERSION : MIN_PEER_PROTO_VERSION))
+        int nRequiredVersion = (chainActive.Tip() && chainActive.Tip()->nHeight >= 220000) ? PROTOCOL_VERSION : (chainparams.GetConsensus().IsProtocolV3_1(GetAdjustedTime()) ? PROTOCOL_VERSION : MIN_PEER_PROTO_VERSION);
+        if (pfrom->nVersion < nRequiredVersion)
         {
-            // disconnect from peers older than this proto version
-            LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, pfrom->nVersion);
+            // disconnect and ban peers using obsolete protocol version after hard fork
+            LogPrintf("peer=%d using obsolete version %i; disconnecting (required %i at height %d)\n", pfrom->id, pfrom->nVersion, nRequiredVersion, chainActive.Tip() ? chainActive.Tip()->nHeight : -1);
             pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
-                               strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
+                               strprintf("Version must be %d or greater", nRequiredVersion));
+            Misbehaving(pfrom->GetId(), 100);
             pfrom->fDisconnect = true;
             return false;
         }
