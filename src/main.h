@@ -285,7 +285,7 @@ bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Para
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
 CAmount GetProofOfWorkSubsidy();
-CAmount GetProofOfStakeSubsidy();
+CAmount GetProofOfStakeSubsidy(int nHeight);
 
 /**
  * Prune block and undo files (blk???.dat and undo???.dat) so that the disk space used is less than a user-defined target.

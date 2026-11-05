@@ -1767,9 +1767,26 @@ CAmount GetProofOfWorkSubsidy()
     return 100 * COIN;
 }
 
-CAmount GetProofOfStakeSubsidy()
+CAmount GetProofOfStakeSubsidy(int nHeight)
 {
-    return COIN * 100;
+    // Linear degradation of staking rewards
+    // Start: block 220,000 at 100 DORK
+    // End: block 1,270,000 at 1 DORK (permanent tail)
+    const int nStartBlock = 220000;
+    const int nEndBlock = 1270000;
+    const CAmount nStartReward = 100 * COIN;
+    const CAmount nEndReward = 1 * COIN;
+
+    if (nHeight < nStartBlock) {
+        return nStartReward;
+    } else if (nHeight >= nEndBlock) {
+        return nEndReward;
+    } else {
+        // Linear interpolation
+        int64_t nDiff = nEndBlock - nStartBlock;
+        CAmount nReward = nStartReward + ((nHeight - nStartBlock) * (nEndReward - nStartReward)) / nDiff;
+        return nReward;
+    }
 }
 
 bool IsInitialBlockDownload()
@@ -2596,7 +2613,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     if (block.IsProofOfStake() && chainparams.GetConsensus().IsProtocolV3(block.GetBlockTime())) {
-            CAmount blockReward = nFees + GetProofOfStakeSubsidy();
+            CAmount blockReward = nFees + GetProofOfStakeSubsidy(pindex->nHeight);
             if (nActualStakeReward > blockReward)
                 return state.DoS(100,
                                  error("ConnectBlock(): coinstake pays too much (actual=%d vs limit=%d)",
