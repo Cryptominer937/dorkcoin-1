@@ -5202,7 +5202,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             nRequiredVersion = PROTOCOL_VERSION;
         } else {
             // Before the fork, accept all peers down to the minimum
-            nRequiredVersion = MIN_PEER_PROTO_VERSION;
+            nRequiredVersion = MIN_PEER_PROTO_VERSION_PRE_FORK;
         }
         if (pfrom->nVersion < nRequiredVersion)
         {

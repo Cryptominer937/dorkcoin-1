@@ -24,6 +24,9 @@ static const int CANONICAL_BLOCK_SIG_LOW_S_VERSION = 60018;
 //! disconnect from peers older than this proto version
 static const int MIN_PEER_PROTO_VERSION = 70012;
 
+//! minimum peer protocol version before the reward-schedule fork (13.2.x uses 70015)
+static const int MIN_PEER_PROTO_VERSION_PRE_FORK = 70015;
+
 //! nTime field added to CAddress, starting with this version;
 //! if possible, avoid requesting addresses nodes older than this
 static const int CADDR_TIME_VERSION = 31402;
