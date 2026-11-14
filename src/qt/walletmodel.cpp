@@ -134,6 +134,10 @@ void WalletModel::updateStatus()
 
 void WalletModel::pollBalanceChanged()
 {
+    // Skip balance polling during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
+
     // Get required locks upfront. This avoids the GUI from getting stuck on
     // periodical polls if the core is holding the locks for a longer time -
     // for example, during a wallet rescan.
@@ -195,6 +199,10 @@ void WalletModel::checkBalanceChanged()
 
 void WalletModel::updateTransaction()
 {
+    // Skip balance updates during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
+
     // Balance and number of transactions might have changed
     fForceCheckBalanceChanged = true;
 }
@@ -484,6 +492,10 @@ bool WalletModel::backupWallet(const QString &filename)
 // Handlers for core signals
 static void NotifyKeyStoreStatusChanged(WalletModel *walletmodel, CCryptoKeyStore *wallet)
 {
+    // Skip during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
+
     qDebug() << "NotifyKeyStoreStatusChanged";
     QMetaObject::invokeMethod(walletmodel, "updateStatus", Qt::QueuedConnection);
 }
@@ -492,6 +504,10 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
         const CTxDestination &address, const std::string &label, bool isMine,
         const std::string &purpose, ChangeType status)
 {
+    // Skip during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
+
     QString strAddress = QString::fromStdString(EncodeDestination(address));
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
@@ -510,6 +526,9 @@ static void NotifyTransactionChanged(WalletModel *walletmodel, CWallet *wallet, 
     Q_UNUSED(wallet);
     Q_UNUSED(hash);
     Q_UNUSED(status);
+    // Skip during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
     QMetaObject::invokeMethod(walletmodel, "updateTransaction", Qt::QueuedConnection);
 }
 
@@ -523,6 +542,10 @@ static void ShowProgress(WalletModel *walletmodel, const std::string &title, int
 
 static void NotifyWatchonlyChanged(WalletModel *walletmodel, bool fHaveWatchonly)
 {
+    // Skip during initial block download to avoid GUI freezes
+    if (IsInitialBlockDownload())
+        return;
+
     QMetaObject::invokeMethod(walletmodel, "updateWatchOnlyFlag", Qt::QueuedConnection,
                               Q_ARG(bool, fHaveWatchonly));
 }
