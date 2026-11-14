@@ -105,8 +105,8 @@ BitcoinGUI::BitcoinGUI(const Config *cfg, const PlatformStyle *platformStyle, co
     encryptWalletAction(0),
     backupWalletAction(0),
     changePassphraseAction(0),
-	unlockWalletAction(0),
-	lockWalletAction(0),
+    unlockWalletAction(0),
+    lockWalletAction(0),
     aboutQtAction(0),
     openRPCConsoleAction(0),
     openAction(0),
@@ -120,7 +120,9 @@ BitcoinGUI::BitcoinGUI(const Config *cfg, const PlatformStyle *platformStyle, co
     prevBlocks(0),
     spinnerFrame(0),
     platformStyle(platformStyle),
-    cfg(cfg)
+    cfg(cfg),
+    lastModalOverlayUpdate(0),
+    lastStatusBarUpdate(0)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(850, 550), this);
 
@@ -760,8 +762,13 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     {
         if (header)
             modalOverlay->setKnownBestHeight(count, blockDate);
-        else
-            modalOverlay->tipUpdate(count, blockDate, nVerificationProgress);
+        else {
+            int64_t now = GetTimeMillis();
+            if (now - lastModalOverlayUpdate > 250) {
+                modalOverlay->tipUpdate(count, blockDate, nVerificationProgress);
+                lastModalOverlayUpdate = now;
+            }
+        }
     }
     if (!clientModel)
         return;
@@ -820,9 +827,15 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-    }
+}
     else
     {
+        // Throttle status bar updates during sync (250ms like MODEL_UPDATE_DELAY)
+        int64_t now = GetTimeMillis();
+        if (now - lastStatusBarUpdate <= 250)
+            return;
+        lastStatusBarUpdate = now;
+
         QString timeBehindText = GUIUtil::formateNiceTimeOffset(secs);
 
         progressBarLabel->setVisible(true);

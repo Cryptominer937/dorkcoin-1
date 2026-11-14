@@ -136,6 +136,8 @@ private:
     int spinnerFrame;
 
     uint64_t nWeight;
+    int64_t lastModalOverlayUpdate;
+    int64_t lastStatusBarUpdate;
 
     const PlatformStyle *platformStyle;
     const Config *cfg;
