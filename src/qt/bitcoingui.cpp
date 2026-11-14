@@ -1109,11 +1109,7 @@ void BitcoinGUI::toggleHidden()
 
 void BitcoinGUI::updateWeight()
 {
-    if(!pwalletMain)
-        return;
-
-    TRY_LOCK(cs_main, lockMain);
-    if (!lockMain)
+    if (!pwalletMain || IsInitialBlockDownload())
         return;
 
     TRY_LOCK(pwalletMain->cs_wallet, lockWallet);
@@ -1121,7 +1117,6 @@ void BitcoinGUI::updateWeight()
         return;
 
 #ifdef ENABLE_WALLET
-    if (pwalletMain)
     nWeight = pwalletMain->GetStakeWeight();
 #endif
 }
@@ -1129,7 +1124,14 @@ void BitcoinGUI::updateWeight()
 
 void BitcoinGUI::updateStakingIcon()
 {
-	updateWeight();
+    if (IsInitialBlockDownload())
+    {
+        labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
+        return;
+    }
+
+    updateWeight();
 
     if (nLastCoinStakeSearchInterval && nWeight)
     {

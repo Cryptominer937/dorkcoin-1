@@ -5,7 +5,7 @@ Setup
 ---------------------
 Dork Core is a Dorkcoin client and it builds the backbone of the network. However, it downloads and stores the entire history of Dorkcoin transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
-To download Dork Core, visit [dorkcoin.org](https://dorkcoin.org).
+To download Dork Core, visit [coin.dorkcoingames.com](https://coin.dorkcoingames.com).
 
 Running
 ---------------------

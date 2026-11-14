@@ -29,7 +29,7 @@ Build Dorkcoin
 
 1. Clone the dorkcoin source code and cd into `dorkcoin`
 
-        git clone https://github.com/dorkcoinorg/dorkcoin/
+        git clone https://github.com/corlovich-boop/dorkcoin/
         cd dorkcoin
 
 2.  Build dorkcoin:
