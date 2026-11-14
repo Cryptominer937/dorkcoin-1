@@ -6,7 +6,7 @@ $(package)_sha256_hash=cc38744f817cf6814c847e2df37fcb8997357d72fa4bcbc228ae0fe47
 $(package)_dependencies=xcb_proto libXau xproto
 
 define $(package)_set_vars
-$(package)_config_opts=--disable-static --disable-devel-docs --without-doxygen --without-launchd
+$(package)_config_opts=--enable-static --disable-devel-docs --without-doxygen --without-launchd
 $(package)_config_opts += --disable-dependency-tracking --enable-option-checking
 # Disable unneeded extensions.
 # More info is available from: https://doc.qt.io/qt-5.15/linux-requirements.html
