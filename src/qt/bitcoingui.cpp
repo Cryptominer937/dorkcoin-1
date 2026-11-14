@@ -485,7 +485,8 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
         setNumConnections(clientModel->getNumConnections());
         connect(clientModel, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
 
-        setNumBlocks(clientModel->getNumBlocks(), clientModel->getLastBlockDate(), clientModel->getVerificationProgress(NULL), false);
+        // Use default values initially; numBlocksChanged signal will update with real values
+        setNumBlocks(0, QDateTime(), 0.0, false);
         connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(setNumBlocks(int,QDateTime,double,bool)));
 
         // Receive and report messages from client model
@@ -777,7 +778,6 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
                 return;
             }
             progressBarLabel->setText(tr("Synchronizing with network..."));
-            updateHeadersSyncProgressLabel();
             break;
         case BLOCK_SOURCE_DISK:
             if (header) {

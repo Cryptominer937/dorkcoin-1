@@ -451,7 +451,8 @@ void RPCConsole::setClientModel(ClientModel *model)
         setNumConnections(model->getNumConnections());
         connect(model, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
 
-        setNumBlocks(model->getNumBlocks(), model->getLastBlockDate(), model->getVerificationProgress(NULL), false);
+        // Use default values initially; numBlocksChanged signal will update with real values
+        setNumBlocks(0, QDateTime(), 0.0, false);
         connect(model, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(setNumBlocks(int,QDateTime,double,bool)));
 
         updateTrafficStats(model->getTotalBytesRecv(), model->getTotalBytesSent());
