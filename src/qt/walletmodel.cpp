@@ -148,16 +148,22 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks)
+    bool fShouldCheckBalance = false;
+    int nCachedHeight = 0;
+
     {
-        fForceCheckBalanceChanged = false;
+        // Scope for lockMain - release cs_main before checkBalanceChanged
+        if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks)
+        {
+            fForceCheckBalanceChanged = false;
+            nCachedHeight = chainActive.Height();
+            fShouldCheckBalance = true;
+        }
+    }
 
-        // Balance and number of transactions might have changed
-        cachedNumBlocks = chainActive.Height();
-
-        // Release cs_main before calling checkBalanceChanged to avoid deadlock
-        // (checkBalanceChanged calls getBalance() which uses LOCK2(cs_main, cs_wallet))
-        lockMain.unlock();
+    if (fShouldCheckBalance)
+    {
+        cachedNumBlocks = nCachedHeight;
         checkBalanceChanged();
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
