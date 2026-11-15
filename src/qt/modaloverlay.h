@@ -7,6 +7,7 @@
 
 #include <QDateTime>
 #include <QWidget>
+#include <deque>
 
 //! The required delta of headers to the estimated number of available headers until we show the IBD progress
 static const int REQ_HEADER_HEIGHT_DELTA_SYNC = 24;
@@ -40,7 +41,7 @@ private:
     Ui::ModalOverlay *ui;
     int bestHeaderHeight; //best known height (based on the headers)
     QDateTime bestHeaderDate;
-    QVector<QPair<qint64, double> > blockProcessTime;
+    std::deque<std::pair<qint64, double>> blockProcessTime;
     bool layerIsVisible;
     bool userClosed;
 };
