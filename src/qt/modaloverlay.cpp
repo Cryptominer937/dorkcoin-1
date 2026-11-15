@@ -132,8 +132,8 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
     if (estimateNumHeadersLeft < 24 && hasBestHeader) {
         ui->numberOfBlocksLeft->setText(QString::number(bestHeaderHeight - count));
     } else {
-        ui->numberOfBlocksLeft->setText(tr("Unknown. Syncing Headers (%1)...").arg(bestHeaderHeight));
-        ui->expectedTimeLeft->setText(tr("Unknown..."));
+        ui->numberOfBlocksLeft->setText(tr("Calculating. Syncing Headers (%1)...").arg(bestHeaderHeight));
+        ui->expectedTimeLeft->setText(tr("Calculating..."));
     }
 }
 
