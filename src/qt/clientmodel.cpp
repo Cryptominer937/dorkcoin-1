@@ -124,6 +124,20 @@ double ClientModel::getVerificationProgress(const CBlockIndex *tipIn) const
         LOCK(cs_main);
         tip = chainActive.Tip();
     }
+    if (!tip)
+        return 0.0;
+
+    // Use block-based progress: current height / best header height
+    // This gives a more accurate sync progress than transaction-based estimation
+    LOCK(cs_main);
+    if (pindexBestHeader && pindexBestHeader->nHeight > 0)
+    {
+        double progress = (double)tip->nHeight / (double)pindexBestHeader->nHeight;
+        if (progress > 1.0) progress = 1.0;
+        return progress;
+    }
+
+    // Fallback to transaction-based if no header available
     return Checkpoints::GuessVerificationProgress(Params().Checkpoints(), tip);
 }
 
