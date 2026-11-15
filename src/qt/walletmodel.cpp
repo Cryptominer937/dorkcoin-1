@@ -155,6 +155,9 @@ void WalletModel::pollBalanceChanged()
         // Balance and number of transactions might have changed
         cachedNumBlocks = chainActive.Height();
 
+        // Release cs_main before calling checkBalanceChanged to avoid deadlock
+        // (checkBalanceChanged calls getBalance() which uses LOCK2(cs_main, cs_wallet))
+        lockMain.unlock();
         checkBalanceChanged();
         if(transactionTableModel)
             transactionTableModel->updateConfirmations();
