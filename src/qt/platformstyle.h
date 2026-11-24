@@ -28,6 +28,9 @@ public:
     /** Update the icon color (e.g. when the theme changes) */
     void setSingleColor(const QColor &color);
 
+    /** Enable/disable icon colorization (e.g. force on for theming) */
+    void setColorizeIcons(bool enable);
+
     /** Colorize an image (given filename) with the icon color */
     QImage SingleColorImage(const QString& filename) const;
 

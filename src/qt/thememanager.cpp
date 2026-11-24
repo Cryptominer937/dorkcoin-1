@@ -29,8 +29,10 @@ ThemeManager *ThemeManager::instance()
 void ThemeManager::setPlatformStyle(PlatformStyle *style)
 {
     m_platformStyle = style;
-    if (m_platformStyle)
+    if (m_platformStyle) {
+        m_platformStyle->setColorizeIcons(true);
         m_platformStyle->setSingleColor(m_palettes[m_theme].primary);
+    }
 }
 
 ThemeManager::ThemeManager(QObject *parent) :
