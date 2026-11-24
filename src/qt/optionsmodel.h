@@ -46,6 +46,7 @@ public:
         DatabaseCache,          // int
         SpendZeroConfChange,    // bool
         Listen,                 // bool
+        Theme,                  // ThemeManager::ThemeId (int)
         OptionIDRowCount,
     };
 
@@ -66,6 +67,7 @@ public:
     QString getThirdPartyTxUrls() { return strThirdPartyTxUrls; }
     bool getProxySettings(QNetworkProxy& proxy) const;
     bool getCoinControlFeatures() { return fCoinControlFeatures; }
+    int getTheme() { return nTheme; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
 
     /* Restart flag helper */
@@ -81,6 +83,7 @@ private:
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
     bool fCoinControlFeatures;
+    int nTheme;
     /* settings that were overriden by command-line */
     QString strOverriddenByCommandLine;
 
@@ -91,6 +94,7 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void themeChanged(int theme);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H

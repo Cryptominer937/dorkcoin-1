@@ -10,6 +10,7 @@
 
 #include "bitcoinunits.h"
 #include "guiutil.h"
+#include "thememanager.h"
 
 #include "amount.h"
 #include "init.h"
@@ -78,6 +79,14 @@ void OptionsModel::Init(bool resetSettings)
     if (!settings.contains("fCoinControlFeatures"))
         settings.setValue("fCoinControlFeatures", false);
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
+
+    // Theme (Qt-only setting)
+    if (!settings.contains("nTheme"))
+        settings.setValue("nTheme", (int)ThemeManager::instance()->detectSystemTheme());
+    nTheme = settings.value("nTheme").toInt();
+    if (nTheme < 0 || nTheme >= ThemeManager::ThemeCount)
+        nTheme = ThemeManager::ThemeLight;
+    Q_EMIT themeChanged(nTheme);
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
@@ -245,6 +254,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
+        case Theme:
+            return nTheme;
         default:
             return QVariant();
         }
@@ -391,6 +402,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (settings.value("fListen") != value) {
                 settings.setValue("fListen", value);
                 setRestartRequired(true);
+            }
+            break;
+        case Theme:
+            if (nTheme != value.toInt()) {
+                nTheme = value.toInt();
+                settings.setValue("nTheme", nTheme);
+                Q_EMIT themeChanged(nTheme);
             }
             break;
         default:

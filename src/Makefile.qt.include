@@ -149,6 +149,7 @@ QT_MOC_CPP = \
   qt/moc_sendcoinsentry.cpp \
   qt/moc_signverifymessagedialog.cpp \
   qt/moc_splashscreen.cpp \
+  qt/moc_thememanager.cpp \
   qt/moc_trafficgraphwidget.cpp \
   qt/moc_transactiondesc.cpp \
   qt/moc_transactiondescdialog.cpp \
@@ -229,6 +230,7 @@ BITCOIN_QT_H = \
   qt/transactionrecord.h \
   qt/transactiontablemodel.h \
   qt/transactionview.h \
+  qt/thememanager.h \
   qt/utilitydialog.h \
   qt/walletframe.h \
   qt/walletmodel.h \
@@ -316,6 +318,7 @@ BITCOIN_QT_BASE_CPP = \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
   qt/splashscreen.cpp \
+  qt/thememanager.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
 

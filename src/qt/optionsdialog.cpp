@@ -12,6 +12,7 @@
 #include "bitcoinunits.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
+#include "thememanager.h"
 
 #include "main.h" // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include "netbase.h"
@@ -114,6 +115,22 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->thirdPartyTxUrls->setPlaceholderText("https://example.com/tx/%s");
 #endif
 
+    /* Theme elements init */
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeLight),
+        tr("Light Mode"), QVariant((int)ThemeManager::ThemeLight));
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeDark),
+        tr("Dark Mode"), QVariant((int)ThemeManager::ThemeDark));
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeHighContrast),
+        tr("High Contrast"), QVariant((int)ThemeManager::ThemeHighContrast));
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeOcean),
+        tr("Ocean"), QVariant((int)ThemeManager::ThemeOcean));
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeForest),
+        tr("Forest"), QVariant((int)ThemeManager::ThemeForest));
+    ui->theme->addItem(ThemeManager::instance()->themeSwatch(ThemeManager::ThemeSunset),
+        tr("Sunset"), QVariant((int)ThemeManager::ThemeSunset));
+    ui->theme->setToolTip(tr("Choose the user interface theme. Changes apply immediately."));
+    connect(ui->theme, SIGNAL(currentIndexChanged(int)), this, SLOT(applyThemeSelection(int)));
+
     ui->unit->setModel(new BitcoinUnits(this));
 
     /* Widget-to-option mapper */
@@ -207,6 +224,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
+    mapper->addMapping(ui->theme, OptionsModel::Theme);
 }
 
 void OptionsDialog::setOkButtonState(bool fState)
@@ -328,6 +346,16 @@ void OptionsDialog::updateDefaultProxyNets()
     strProxy = proxy.proxy.ToStringIP() + ":" + proxy.proxy.ToStringPort();
     strDefaultProxyGUI = ui->proxyIp->text() + ":" + ui->proxyPort->text();
     (strProxy == strDefaultProxyGUI.toStdString()) ? ui->proxyReachTor->setChecked(true) : ui->proxyReachTor->setChecked(false);
+}
+
+void OptionsDialog::applyThemeSelection(int index)
+{
+    if (!model)
+        return;
+
+    ThemeManager::ThemeId theme = (ThemeManager::ThemeId)ui->theme->itemData(index).toInt();
+    ThemeManager::instance()->applyTheme(theme);
+    model->setData(model->index(OptionsModel::Theme, 0), (int)theme);
 }
 
 ProxyAddressValidator::ProxyAddressValidator(QObject *parent) :
