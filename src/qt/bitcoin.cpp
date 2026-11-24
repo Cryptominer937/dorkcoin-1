@@ -567,11 +567,6 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QAPP_APP_NAME_DEFAULT);
     GUIUtil::SubstituteFonts(GetLangTerritory());
 
-    // Apply the user's saved theme (or the OS-detected theme, falling back to
-    // Light Mode) on the QApplication before the first window is created or
-    // shown, so there is no flash of unstyled or default colors.
-    ThemeManager::instance()->initialize();
-
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations
     QTranslator qtTranslatorBase, qtTranslator, translatorBase, translator;
@@ -632,6 +627,12 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(networkStyle->getAppName());
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
+
+    // Apply the user's saved theme (or the OS-detected theme, falling back to
+    // Light Mode) on the QApplication before the first window is created or
+    // shown, so there is no flash of unstyled or default colors. Runs after the
+    // application name is finalized so QSettings scope matches OptionsModel.
+    ThemeManager::instance()->initialize();
 
 #ifdef ENABLE_WALLET
     /// 8. URI IPC sending

@@ -115,6 +115,7 @@ void ThemeManager::persistTheme(ThemeId theme)
 {
     QSettings settings;
     settings.setValue("nTheme", (int)theme);
+    settings.sync();
 }
 
 QString ThemeManager::buildStylesheet(const ThemeColors &c) const
