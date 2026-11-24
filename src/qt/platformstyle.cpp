@@ -9,7 +9,9 @@
 #include <QApplication>
 #include <QColor>
 #include <QIcon>
+#include <QIconEngine>
 #include <QImage>
+#include <QPainter>
 #include <QPalette>
 #include <QPixmap>
 
@@ -60,7 +62,7 @@ public:
                QIcon::State state) override
     {
         if (!m_style || !m_style->getColorizeIcons()) {
-            m_source.paint(painter, rect, mode, state);
+            m_source.paint(painter, rect, Qt::AlignCenter, mode, state);
             return;
         }
         QPixmap pm = m_source.pixmap(rect.size(), mode, state);
@@ -79,17 +81,6 @@ public:
         MakeSingleColorImage(img, m_style->SingleColor());
         return QPixmap::fromImage(img);
     }
-
-    QIcon::ActualSize actualSize(const QSize &size, QIcon::Mode mode,
-                                 QIcon::State state) override
-    {
-        QIcon::ActualSize a;
-        a.size = m_source.actualSize(size, mode, state);
-        a.rect = QRect(QPoint(0, 0), a.size);
-        return a;
-    }
-
-    bool isNull() const override { return m_source.isNull(); }
 
 private:
     QIcon m_source;
