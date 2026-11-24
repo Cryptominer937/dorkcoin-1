@@ -6,6 +6,7 @@
 
 #include <QApplication>
 #include <QColor>
+#include <QCoreApplication>
 #include <QPalette>
 #include <QPixmap>
 #include <QSettings>
@@ -89,10 +90,11 @@ void ThemeManager::applyTheme(ThemeId theme)
 
 void ThemeManager::applyStylesheet(const ThemeColors &c)
 {
-    QApplication *app = QApplication::instance();
-    if (!app)
+    QCoreApplication *app = QCoreApplication::instance();
+    QApplication *qapp = qobject_cast<QApplication *>(app);
+    if (!qapp)
         return;
-    app->setStyleSheet(buildStylesheet(c));
+    qapp->setStyleSheet(buildStylesheet(c));
 }
 
 QPixmap ThemeManager::themeSwatch(ThemeId theme) const
