@@ -494,8 +494,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/dorkcoinorg/dorkcoin>";
-    const std::string URL_WEBSITE = "<https://dorkcoin.org/>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/corlovich-boop/dorkcoin>";
+    const std::string URL_WEBSITE = "<https://coin.dorkcoingames.com/>";
     // todo: remove urls from translations on next change
 
     // return FormatParagraph(strprintf(_("Copyright (C) %i-%i %s"), 2009, COPYRIGHT_YEAR, CopyrightHolders())) + "\n" +

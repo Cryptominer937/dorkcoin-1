@@ -118,7 +118,7 @@ public:
         consensus.nCoinbaseMaturity = 100;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000100001"); 
+        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000002b74d45a14186a7a92"); 
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -158,7 +158,7 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x000007e104c49bac76127806f96d50f2510fe42c0c47126d511cea785248c1ef"));
         assert(genesis.hashMerkleRoot == uint256S("0x75bc1a80e13213ada9e18dac132c3c8d3c03ff3d1bcc7aec73f5f35155b8518a"));
 
-        vSeeds.push_back(CDNSSeedData("explorer.dorkcoin.org", "213.181.99.70"));
+        vSeeds.push_back(CDNSSeedData("explorer.dorkcoingames.com", "213.181.99.70"));
         vSeeds.push_back(CDNSSeedData("216.128.144.174", "216.128.144.174"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,30);

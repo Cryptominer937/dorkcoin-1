@@ -105,8 +105,8 @@ BitcoinGUI::BitcoinGUI(const Config *cfg, const PlatformStyle *platformStyle, co
     encryptWalletAction(0),
     backupWalletAction(0),
     changePassphraseAction(0),
-	unlockWalletAction(0),
-	lockWalletAction(0),
+    unlockWalletAction(0),
+    lockWalletAction(0),
     aboutQtAction(0),
     openRPCConsoleAction(0),
     openAction(0),
@@ -120,7 +120,9 @@ BitcoinGUI::BitcoinGUI(const Config *cfg, const PlatformStyle *platformStyle, co
     prevBlocks(0),
     spinnerFrame(0),
     platformStyle(platformStyle),
-    cfg(cfg)
+    cfg(cfg),
+    lastModalOverlayUpdate(0),
+    lastStatusBarUpdate(0)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(850, 550), this);
 
@@ -485,7 +487,8 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
         setNumConnections(clientModel->getNumConnections());
         connect(clientModel, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
 
-        setNumBlocks(clientModel->getNumBlocks(), clientModel->getLastBlockDate(), clientModel->getVerificationProgress(NULL), false);
+        // Use default values initially; numBlocksChanged signal will update with real values
+        setNumBlocks(0, QDateTime(), 0.0, false);
         connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(setNumBlocks(int,QDateTime,double,bool)));
 
         // Receive and report messages from client model
@@ -759,8 +762,13 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     {
         if (header)
             modalOverlay->setKnownBestHeight(count, blockDate);
-        else
-            modalOverlay->tipUpdate(count, blockDate, nVerificationProgress);
+        else {
+            int64_t now = GetTimeMillis();
+            if (now - lastModalOverlayUpdate > 250) {
+                modalOverlay->tipUpdate(count, blockDate, nVerificationProgress);
+                lastModalOverlayUpdate = now;
+            }
+        }
     }
     if (!clientModel)
         return;
@@ -777,7 +785,6 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
                 return;
             }
             progressBarLabel->setText(tr("Synchronizing with network..."));
-            updateHeadersSyncProgressLabel();
             break;
         case BLOCK_SOURCE_DISK:
             if (header) {
@@ -820,9 +827,15 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-    }
+}
     else
     {
+        // Throttle status bar updates during sync (250ms like MODEL_UPDATE_DELAY)
+        int64_t now = GetTimeMillis();
+        if (now - lastStatusBarUpdate <= 250)
+            return;
+        lastStatusBarUpdate = now;
+
         QString timeBehindText = GUIUtil::formateNiceTimeOffset(secs);
 
         progressBarLabel->setVisible(true);
@@ -1109,11 +1122,7 @@ void BitcoinGUI::toggleHidden()
 
 void BitcoinGUI::updateWeight()
 {
-    if(!pwalletMain)
-        return;
-
-    TRY_LOCK(cs_main, lockMain);
-    if (!lockMain)
+    if (!pwalletMain || IsInitialBlockDownload())
         return;
 
     TRY_LOCK(pwalletMain->cs_wallet, lockWallet);
@@ -1121,7 +1130,6 @@ void BitcoinGUI::updateWeight()
         return;
 
 #ifdef ENABLE_WALLET
-    if (pwalletMain)
     nWeight = pwalletMain->GetStakeWeight();
 #endif
 }
@@ -1129,7 +1137,14 @@ void BitcoinGUI::updateWeight()
 
 void BitcoinGUI::updateStakingIcon()
 {
-	updateWeight();
+    if (IsInitialBlockDownload())
+    {
+        labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
+        return;
+    }
+
+    updateWeight();
 
     if (nLastCoinStakeSearchInterval && nWeight)
     {

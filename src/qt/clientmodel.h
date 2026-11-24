@@ -88,8 +88,11 @@ private:
 
     QTimer *pollTimer;
 
+    mutable enum BlockSource cachedBlockSource;
+
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+    void updateBlockSource();
 
 Q_SIGNALS:
     void numConnectionsChanged(int count);

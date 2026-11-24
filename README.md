@@ -6,7 +6,7 @@ What is Dorkcoin?
 
 Dorkcoin is a playful memecoin built for the internet’s proud misfits — the Real Dorks. It runs on its own blockchain and uses a Proof-of-Stake (PoS) consensus mechanism, meaning the network is secured by users who stake their coins instead of mining.
 
-For more information about Dorkcoin itself, see https://dorkcoin.org.
+For more information about Dorkcoin itself, see https://coin.dorkcoingames.com.
 
 What is Dork Core?
 ----------------
@@ -24,7 +24,7 @@ Development Process
 -------------------
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/dorkcoinorg/dorkcoin/tags) are created
+completely stable. [Tags](https://github.com/corlovich-boop/dorkcoin/tags) are created
 regularly to indicate new official, stable release versions of Dorkcoin.
 
 Change log can be found in [CHANGELOG.md](CHANGELOG.md).

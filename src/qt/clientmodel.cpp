@@ -32,7 +32,8 @@ ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     optionsModel(optionsModel),
     peerTableModel(0),
     banTableModel(0),
-    pollTimer(0)
+    pollTimer(0),
+    cachedBlockSource(BLOCK_SOURCE_NONE)
 {
     peerTableModel = new PeerTableModel(this);
     banTableModel = new BanTableModel(this);
@@ -41,6 +42,7 @@ ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     pollTimer->start(MODEL_UPDATE_DELAY);
 
     subscribeToCoreSignals();
+    updateBlockSource();
 }
 
 ClientModel::~ClientModel()
@@ -122,6 +124,20 @@ double ClientModel::getVerificationProgress(const CBlockIndex *tipIn) const
         LOCK(cs_main);
         tip = chainActive.Tip();
     }
+    if (!tip)
+        return 0.0;
+
+    // Use block-based progress: current height / best header height
+    // This gives a more accurate sync progress than transaction-based estimation
+    LOCK(cs_main);
+    if (pindexBestHeader && pindexBestHeader->nHeight > 0)
+    {
+        double progress = (double)tip->nHeight / (double)pindexBestHeader->nHeight;
+        if (progress > 1.0) progress = 1.0;
+        return progress;
+    }
+
+    // Fallback to transaction-based if no header available
     return Checkpoints::GuessVerificationProgress(Params().Checkpoints(), tip);
 }
 
@@ -136,6 +152,7 @@ void ClientModel::updateTimer()
 void ClientModel::updateNumConnections(int numConnections)
 {
     Q_EMIT numConnectionsChanged(numConnections);
+    updateBlockSource();
 }
 
 void ClientModel::updateAlert()
@@ -150,14 +167,22 @@ bool ClientModel::inInitialBlockDownload() const
 
 enum BlockSource ClientModel::getBlockSource() const
 {
-    if (fReindex)
-        return BLOCK_SOURCE_REINDEX;
-    else if (fImporting)
-        return BLOCK_SOURCE_DISK;
-    else if (getNumConnections() > 0)
-        return BLOCK_SOURCE_NETWORK;
+    return cachedBlockSource;
+}
 
-    return BLOCK_SOURCE_NONE;
+void ClientModel::updateBlockSource()
+{
+    enum BlockSource newSource = BLOCK_SOURCE_NONE;
+    if (fReindex)
+        newSource = BLOCK_SOURCE_REINDEX;
+    else if (fImporting)
+        newSource = BLOCK_SOURCE_DISK;
+    else if (getNumConnections() > 0)
+        newSource = BLOCK_SOURCE_NETWORK;
+
+    if (newSource != cachedBlockSource) {
+        cachedBlockSource = newSource;
+    }
 }
 
 QString ClientModel::getStatusBarWarnings() const
