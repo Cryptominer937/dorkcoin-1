@@ -1266,6 +1266,28 @@ void BitcoinGUI::showModalOverlay()
         modalOverlay->showHide(false, true);
 }
 
+void BitcoinGUI::refreshThemeIcons()
+{
+    // Re-set icons on all actions that use SingleColorIcon so that the
+    // QIconEngine re-renders them with the theme's current primary color.
+    if (overviewAction)
+        overviewAction->setIcon(platformStyle->SingleColorIcon(":/icons/overview"));
+    if (sendCoinsAction)
+        sendCoinsAction->setIcon(platformStyle->SingleColorIcon(":/icons/send"));
+    if (receiveCoinsAction)
+        receiveCoinsAction->setIcon(platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
+    if (historyAction)
+        historyAction->setIcon(platformStyle->SingleColorIcon(":/icons/history"));
+
+    // Force the toolbar and all child widgets to re-polish and repaint so
+    // icons picked up from platformStyle (status bar, transaction view, etc.)
+    // are re-queried with the new color.
+    style()->unpolish(this);
+    style()->polish(this);
+    update();
+    QCoreApplication::sendPostedEvents(this, QEvent::UpdateRequest);
+}
+
 static bool ThreadSafeMessageBox(BitcoinGUI *gui, const std::string& message, const std::string& caption, unsigned int style)
 {
     bool modal = (style & CClientUIInterface::MODAL);

@@ -257,6 +257,9 @@ private Q_SLOTS:
     void setTrayIconVisible(bool);
 
     void showModalOverlay();
+
+    /** Re-creates all action icons with the current theme's primary color */
+    void refreshThemeIcons();
 };
 
 class UnitDisplayStatusBarControl : public QLabel

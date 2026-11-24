@@ -371,6 +371,10 @@ void BitcoinApplication::createWindow(const Config *config, const NetworkStyle *
 
     window = new BitcoinGUI(config, platformStyle, networkStyle, 0);
 
+    // Refresh all action icons when the theme changes dynamically.
+    connect(ThemeManager::instance(), SIGNAL(themeChanged(ThemeManager::ThemeId)),
+            window, SLOT(refreshThemeIcons()));
+
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);
