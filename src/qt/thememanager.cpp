@@ -4,6 +4,8 @@
 
 #include "thememanager.h"
 
+#include "platformstyle.h"
+
 #include <QApplication>
 #include <QColor>
 #include <QCoreApplication>
@@ -24,9 +26,17 @@ ThemeManager *ThemeManager::instance()
     return inst;
 }
 
+void ThemeManager::setPlatformStyle(PlatformStyle *style)
+{
+    m_platformStyle = style;
+    if (m_platformStyle)
+        m_platformStyle->setSingleColor(m_palettes[m_theme].primary);
+}
+
 ThemeManager::ThemeManager(QObject *parent) :
     QObject(parent),
-    m_theme(ThemeLight)
+    m_theme(ThemeLight),
+    m_platformStyle(0)
 {
     m_themeNames[ThemeLight] = tr("Light Mode");
     m_themeNames[ThemeDark] = tr("Dark Mode");
@@ -88,6 +98,8 @@ void ThemeManager::applyTheme(ThemeId theme)
         return;
     m_theme = theme;
     applyStylesheet(m_palettes[m_theme]);
+    if (m_platformStyle)
+        m_platformStyle->setSingleColor(m_palettes[m_theme].primary);
     Q_EMIT themeChanged(m_theme);
 }
 

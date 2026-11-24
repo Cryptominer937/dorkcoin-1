@@ -11,6 +11,7 @@
 #include <QString>
 
 class QApplication;
+class PlatformStyle;
 
 /**
  * ThemeManager owns the semantic token architecture for the Dorkcoin Qt GUI.
@@ -85,6 +86,9 @@ public:
     /** Apply a theme to the application: regenerates the stylesheet and notifies listeners. */
     void applyTheme(ThemeId theme);
 
+    /** Link the PlatformStyle so icon colors follow the theme's primary accent. */
+    void setPlatformStyle(PlatformStyle *style);
+
     /** Small 16x16 color swatch of a theme's primary color (for the selector). */
     QPixmap themeSwatch(ThemeId theme) const;
 
@@ -109,6 +113,7 @@ private:
     ThemeColors paletteSunset() const;
 
     ThemeId m_theme;
+    PlatformStyle *m_platformStyle;
     ThemeColors m_palettes[ThemeCount];
     QString m_themeNames[ThemeCount];
 };

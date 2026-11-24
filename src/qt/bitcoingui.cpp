@@ -20,6 +20,7 @@
 #include "optionsdialog.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
+#include "thememanager.h"
 #include "rpcconsole.h"
 #include "utilitydialog.h"
 
@@ -59,6 +60,10 @@
 #include <QToolBar>
 #include <QUrlQuery>
 #include <QVBoxLayout>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
 #if defined(Q_OS_MAC)
@@ -983,6 +988,26 @@ void BitcoinGUI::showEvent(QShowEvent *event)
     openRPCConsoleAction->setEnabled(true);
     aboutAction->setEnabled(true);
     optionsAction->setEnabled(true);
+
+#ifdef Q_OS_WIN
+    // Apply Windows immersive dark mode to the title bar so it matches the
+    // selected theme (Dark / High Contrast => dark title bar, Light => light).
+    // Uses dynamic loading of dwmapi.dll to avoid a hard link-time dependency.
+    if (HMODULE hDwm = LoadLibraryA("dwmapi.dll")) {
+        typedef HRESULT (WINAPI *DwmSetWindowAttributePtr)(HWND, DWORD, LPCVOID, DWORD);
+        auto pfn = (DwmSetWindowAttributePtr)GetProcAddress(hDwm, "DwmSetWindowAttribute");
+        if (pfn) {
+            ThemeManager::ThemeId theme = ThemeManager::instance()->currentTheme();
+            BOOL darkMode = (theme == ThemeManager::ThemeDark ||
+                             theme == ThemeManager::ThemeHighContrast) ? TRUE : FALSE;
+            constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 19;
+            constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_WIN11 = 20;
+            pfn((HWND)winId(), DWMWA_USE_IMMERSIVE_DARK_MODE, &darkMode, sizeof(darkMode));
+            pfn((HWND)winId(), DWMWA_USE_IMMERSIVE_DARK_MODE_WIN11, &darkMode, sizeof(darkMode));
+        }
+        FreeLibrary(hDwm);
+    }
+#endif
 }
 
 #ifdef ENABLE_WALLET

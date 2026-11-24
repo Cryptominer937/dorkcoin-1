@@ -366,6 +366,11 @@ void BitcoinApplication::createWindow(const Config *config, const NetworkStyle *
 {
     window = new BitcoinGUI(config, platformStyle, networkStyle, 0);
 
+    // Link PlatformStyle to ThemeManager so icon colors follow the theme's
+    // primary accent (fixes black icons on Windows where the OS highlight
+    // color is dark instead of blue).
+    ThemeManager::instance()->setPlatformStyle(const_cast<PlatformStyle *>(platformStyle));
+
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);

@@ -129,6 +129,11 @@ QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
     return ColorizeIcon(icon, TextColor());
 }
 
+void PlatformStyle::setSingleColor(const QColor &color)
+{
+    singleColor = color;
+}
+
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
 {
     for (unsigned x=0; x<platform_styles_count; ++x)

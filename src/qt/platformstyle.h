@@ -24,6 +24,9 @@ public:
     QColor TextColor() const { return textColor; }
     QColor SingleColor() const { return singleColor; }
 
+    /** Update the icon color (e.g. when the theme changes) */
+    void setSingleColor(const QColor &color);
+
     /** Colorize an image (given filename) with the icon color */
     QImage SingleColorImage(const QString& filename) const;
 
