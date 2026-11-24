@@ -55,6 +55,8 @@ private Q_SLOTS:
 
     void applyThemeSelection(int index);
 
+    int themeIndexFromModel(OptionsModel *model);
+
     void showRestartWarning(bool fPersistent = false);
     void clearStatusLabel();
     void updateProxyValidationState();

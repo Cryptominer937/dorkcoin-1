@@ -86,6 +86,9 @@ void OptionsModel::Init(bool resetSettings)
     nTheme = settings.value("nTheme").toInt();
     if (nTheme < 0 || nTheme >= ThemeManager::ThemeCount)
         nTheme = ThemeManager::ThemeLight;
+    // Ensure the QApplication stylesheet matches the persisted choice on every
+    // launch (covers any divergence between ThemeManager and OptionsModel).
+    ThemeManager::instance()->applyTheme((ThemeManager::ThemeId)nTheme);
     Q_EMIT themeChanged(nTheme);
 
     // These are shared with the core or have a command-line parameter

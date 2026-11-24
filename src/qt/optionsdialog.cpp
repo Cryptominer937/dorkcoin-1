@@ -224,7 +224,20 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
-    mapper->addMapping(ui->theme, OptionsModel::Theme);
+
+    /* Theme is applied live via applyThemeSelection; keep it out of the
+       widget mapper so OK/Cancel never overwrite the persisted choice. */
+    ui->theme->setCurrentIndex(themeIndexFromModel(model));
+}
+
+int OptionsDialog::themeIndexFromModel(OptionsModel *model)
+{
+    int theme = model ? model->getTheme() : ThemeManager::ThemeLight;
+    for (int i = 0; i < ui->theme->count(); ++i) {
+        if (ui->theme->itemData(i).toInt() == theme)
+            return i;
+    }
+    return 0;
 }
 
 void OptionsDialog::setOkButtonState(bool fState)
