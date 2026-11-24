@@ -45,6 +45,57 @@ void MakeSingleColorImage(QImage& img, const QColor& colorbase)
     }
 }
 
+/* QIconEngine that re-colorizes a source icon with PlatformStyle's current
+   singleColor on every paint. This lets icons follow theme changes dynamically
+   instead of being baked with a fixed color at creation time. */
+class ThemeIconEngine : public QIconEngine
+{
+public:
+    ThemeIconEngine(const QIcon &source, PlatformStyle *style)
+        : m_source(source), m_style(style) {}
+
+    QIconEngine *clone() const override { return new ThemeIconEngine(*this); }
+
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode,
+               QIcon::State state) override
+    {
+        if (!m_style || !m_style->getColorizeIcons()) {
+            m_source.paint(painter, rect, mode, state);
+            return;
+        }
+        QPixmap pm = m_source.pixmap(rect.size(), mode, state);
+        QImage img = pm.toImage();
+        MakeSingleColorImage(img, m_style->SingleColor());
+        painter->drawPixmap(rect, QPixmap::fromImage(img));
+    }
+
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override
+    {
+        if (!m_style || !m_style->getColorizeIcons()) {
+            return m_source.pixmap(size, mode, state);
+        }
+        QPixmap pm = m_source.pixmap(size, mode, state);
+        QImage img = pm.toImage();
+        MakeSingleColorImage(img, m_style->SingleColor());
+        return QPixmap::fromImage(img);
+    }
+
+    QIcon::ActualSize actualSize(const QSize &size, QIcon::Mode mode,
+                                 QIcon::State state) override
+    {
+        QIcon::ActualSize a;
+        a.size = m_source.actualSize(size, mode, state);
+        a.rect = QRect(QPoint(0, 0), a.size);
+        return a;
+    }
+
+    bool isNull() const override { return m_source.isNull(); }
+
+private:
+    QIcon m_source;
+    PlatformStyle *m_style;
+};
+
 QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 {
     QIcon new_ico;
@@ -109,14 +160,14 @@ QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
 {
     if (!colorizeIcons)
         return QIcon(filename);
-    return ColorizeIcon(filename, SingleColor());
+    return QIcon(new ThemeIconEngine(QIcon(filename), const_cast<PlatformStyle *>(this)));
 }
 
 QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
 {
     if (!colorizeIcons)
         return icon;
-    return ColorizeIcon(icon, SingleColor());
+    return QIcon(new ThemeIconEngine(icon, const_cast<PlatformStyle *>(this)));
 }
 
 QIcon PlatformStyle::TextColorIcon(const QString& filename) const

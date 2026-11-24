@@ -19,6 +19,7 @@ public:
     const QString &getName() const { return name; }
 
     bool getImagesOnButtons() const { return imagesOnButtons; }
+    bool getColorizeIcons() const { return colorizeIcons; }
     bool getUseExtraSpacing() const { return useExtraSpacing; }
 
     QColor TextColor() const { return textColor; }

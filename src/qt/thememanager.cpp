@@ -71,6 +71,8 @@ void ThemeManager::initialize()
     // applyTheme()'s m_theme == theme guard would skip the first apply.
     m_theme = theme;
     applyStylesheet(m_palettes[m_theme]);
+    if (m_platformStyle)
+        m_platformStyle->setSingleColor(m_palettes[m_theme].primary);
     persistTheme(theme);
     Q_EMIT themeChanged(m_theme);
 }
