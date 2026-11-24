@@ -123,13 +123,30 @@ void ThemeManager::persistTheme(ThemeId theme)
 
 QString ThemeManager::buildStylesheet(const ThemeColors &c) const
 {
+    QString bgWidgetBg;
+    if (m_theme == ThemeHighContrast)
+        bgWidgetBg = c.window.name();
+    else
+        bgWidgetBg = QString("rgba(%1,%2,%3,%4)").arg(c.panel.red()).arg(c.panel.green()).arg(c.panel.blue()).arg(200);
+
     return QString(
         "QToolTip {"
         "  color: %19;"
         "  background-color: %18;"
         "  border: %20px solid %8;"
         "  border-radius: 4px;"
-        "  opacity: 1;"
+        "  padding: 4px 8px;"
+        "}"
+        "#bgWidget {"
+        "  background-color: %22;"
+        "}"
+        "#contentWidget {"
+        "  background-color: %2;"
+        "  border: %20px solid %8;"
+        "  border-radius: 6px;"
+        "}"
+        "#contentWidget QLabel {"
+        "  color: %5;"
         "}"
         "QWidget {"
         "  color: %5;"
@@ -405,7 +422,8 @@ QString ThemeManager::buildStylesheet(const ThemeColors &c) const
         .arg(c.tooltipBg.name())
         .arg(c.tooltipText.name())
         .arg(c.borderWidth)
-        .arg(c.focusWidth);
+        .arg(c.focusWidth)
+        .arg(bgWidgetBg);
 }
 
 ThemeManager::ThemeColors ThemeManager::paletteLight() const
