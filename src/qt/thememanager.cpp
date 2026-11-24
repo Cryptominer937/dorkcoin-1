@@ -57,9 +57,12 @@ void ThemeManager::initialize()
     ThemeId theme = loadSavedTheme();
     if (theme < 0 || theme >= ThemeCount)
         theme = detectSystemTheme();
+    // Apply directly: m_theme is still ThemeLight from construction, so
+    // applyTheme()'s m_theme == theme guard would skip the first apply.
     m_theme = theme;
+    applyStylesheet(m_palettes[m_theme]);
     persistTheme(theme);
-    applyTheme(theme);
+    Q_EMIT themeChanged(m_theme);
 }
 
 ThemeManager::ThemeId ThemeManager::detectSystemTheme() const
