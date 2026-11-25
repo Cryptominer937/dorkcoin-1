@@ -181,7 +181,15 @@ void OverviewPage::refreshThemeIcons()
     QColor themePrimary = ThemeManager::instance()->currentColors().primary;
 
     // Re-bake the out-of-sync warning icon with the current theme primary color.
-    QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");
+    QPixmap iconPixmap(QString(":/icons/warning"));
+    QImage iconImg = iconPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+    for (int x = iconImg.width(); x--; ) {
+        for (int y = iconImg.height(); y--; ) {
+            const QRgb rgb = iconImg.pixel(x, y);
+            iconImg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+        }
+    }
+    QIcon icon(QPixmap::fromImage(iconImg));
     icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled);
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
