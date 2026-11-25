@@ -11,6 +11,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
+#include "thememanager.h"
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
@@ -45,7 +46,16 @@ public:
         int halfheight = (mainRect.height() - 2*ypad)/2;
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
         QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
-        icon = platformStyle->SingleColorIcon(icon);
+        QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+        QPixmap iconPixmap = icon.pixmap(DECORATION_SIZE, DECORATION_SIZE);
+        QImage iconImg = iconPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+        for (int x = iconImg.width(); x--; ) {
+            for (int y = iconImg.height(); y--; ) {
+                const QRgb rgb = iconImg.pixel(x, y);
+                iconImg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+            }
+        }
+        icon = QIcon(QPixmap::fromImage(iconImg));
         icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
@@ -68,6 +78,16 @@ public:
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
             QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
+            QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+            QPixmap wpm = iconWatchonly.pixmap(16, 16);
+            QImage wimg = wpm.toImage().convertToFormat(QImage::Format_ARGB32);
+            for (int x = wimg.width(); x--; ) {
+                for (int y = wimg.height(); y--; ) {
+                    const QRgb rgb = wimg.pixel(x, y);
+                    wimg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+                }
+            }
+            iconWatchonly = QIcon(QPixmap::fromImage(wimg));
             iconWatchonly.paint(painter, watchonlyRect);
         }
 
@@ -144,12 +164,27 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
     connect(ui->labelTransactionsStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
+
+    // Refresh warning icons when the theme changes
+    connect(ThemeManager::instance(), SIGNAL(themeChanged(ThemeManager::ThemeId)),
+            this, SLOT(refreshThemeIcons()));
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 {
     if(filter)
         Q_EMIT transactionClicked(filter->mapToSource(index));
+}
+
+void OverviewPage::refreshThemeIcons()
+{
+    QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+
+    // Re-bake the out-of-sync warning icon with the current theme primary color.
+    QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");
+    icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled);
+    ui->labelTransactionsStatus->setIcon(icon);
+    ui->labelWalletStatus->setIcon(icon);
 }
 
 void OverviewPage::handleOutOfSyncWarningClicks()

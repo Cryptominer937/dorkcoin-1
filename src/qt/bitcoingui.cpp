@@ -1268,8 +1268,9 @@ void BitcoinGUI::showModalOverlay()
 
 void BitcoinGUI::refreshThemeIcons()
 {
-    // Re-set icons on all actions that use SingleColorIcon so that the
-    // QIconEngine re-renders them with the theme's current primary color.
+    QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+
+    // Re-set action icons so they are baked with the current theme color.
     if (overviewAction)
         overviewAction->setIcon(platformStyle->SingleColorIcon(":/icons/overview"));
     if (sendCoinsAction)
@@ -1279,9 +1280,27 @@ void BitcoinGUI::refreshThemeIcons()
     if (historyAction)
         historyAction->setIcon(platformStyle->SingleColorIcon(":/icons/history"));
 
-    // Force the toolbar and all child widgets to re-polish and repaint so
-    // icons picked up from platformStyle (status bar, transaction view, etc.)
-    // are re-queried with the new color.
+    // Re-colorize status bar icon pixmaps with the current theme primary color.
+    auto refreshIconLabel = [&](QLabel *label) {
+        if (label && label->pixmap()) {
+            QPixmap pm = *label->pixmap();
+            QImage img = pm.toImage().convertToFormat(QImage::Format_ARGB32);
+            for (int x = img.width(); x--; ) {
+                for (int y = img.height(); y--; ) {
+                    const QRgb rgb = img.pixel(x, y);
+                    img.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+                }
+            }
+            label->setPixmap(QPixmap::fromImage(img));
+        }
+    };
+    refreshIconLabel(labelConnectionsIcon);
+    refreshIconLabel(labelBlocksIcon);
+    refreshIconLabel(labelWalletEncryptionIcon);
+    refreshIconLabel(labelWalletHDStatusIcon);
+    refreshIconLabel(labelStakingIcon);
+
+    // Force the toolbar and all child widgets to re-polish and repaint.
     style()->unpolish(this);
     style()->polish(this);
     update();
