@@ -21,6 +21,7 @@
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "thememanager.h"
+#include "transactionview.h"
 #include "rpcconsole.h"
 #include "utilitydialog.h"
 
@@ -1299,6 +1300,11 @@ void BitcoinGUI::refreshThemeIcons()
     refreshIconLabel(labelWalletEncryptionIcon);
     refreshIconLabel(labelWalletHDStatusIcon);
     refreshIconLabel(labelStakingIcon);
+
+    // Refresh TransactionView icons (watch-only filter icons)
+    QList<TransactionView *> txViews = this->findChildren<TransactionView *>();
+    for (TransactionView *tv : txViews)
+        tv->refreshThemeIcons();
 
     // Force the toolbar and all child widgets to re-polish and repaint.
     style()->unpolish(this);

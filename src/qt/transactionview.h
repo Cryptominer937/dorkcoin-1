@@ -37,6 +37,8 @@ public:
 
     void setModel(WalletModel *model);
 
+    void refreshThemeIcons();
+
     // Date ranges for filter
     enum DateEnum
     {

@@ -11,6 +11,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
+#include "thememanager.h"
 #include "transactiondescdialog.h"
 #include "transactionfilterproxy.h"
 #include "transactionrecord.h"
@@ -578,4 +579,30 @@ void TransactionView::updateWatchOnlyColumn(bool fHaveWatchOnly)
 {
     watchOnlyWidget->setVisible(fHaveWatchOnly);
     transactionView->setColumnHidden(TransactionTableModel::Watchonly, !fHaveWatchOnly);
+}
+
+void TransactionView::refreshThemeIcons()
+{
+    QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+
+    // Re-bake watch-only filter icons with the current theme primary color.
+    QPixmap plusPixmap(QString(":/icons/eye_plus"));
+    QImage plusImg = plusPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+    for (int x = plusImg.width(); x--; ) {
+        for (int y = plusImg.height(); y--; ) {
+            const QRgb rgb = plusImg.pixel(x, y);
+            plusImg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+        }
+    }
+    watchOnlyWidget->setItemIcon(1, QIcon(QPixmap::fromImage(plusImg)));
+
+    QPixmap minusPixmap(QString(":/icons/eye_minus"));
+    QImage minusImg = minusPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+    for (int x = minusImg.width(); x--; ) {
+        for (int y = minusImg.height(); y--; ) {
+            const QRgb rgb = minusImg.pixel(x, y);
+            minusImg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+        }
+    }
+    watchOnlyWidget->setItemIcon(2, QIcon(QPixmap::fromImage(minusImg)));
 }

@@ -9,6 +9,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
+#include "thememanager.h"
 #include "transactiondesc.h"
 #include "transactionrecord.h"
 #include "walletmodel.h"
@@ -548,7 +549,16 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
     {
         QIcon icon = qvariant_cast<QIcon>(index.data(RawDecorationRole));
-        return platformStyle->TextColorIcon(icon);
+        QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+        QPixmap pm = icon.pixmap(24, 24);
+        QImage img = pm.toImage().convertToFormat(QImage::Format_ARGB32);
+        for (int x = img.width(); x--; ) {
+            for (int y = img.height(); y--; ) {
+                const QRgb rgb = img.pixel(x, y);
+                img.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+            }
+        }
+        return QIcon(QPixmap::fromImage(img));
     }
     case Qt::DisplayRole:
         switch(index.column())
