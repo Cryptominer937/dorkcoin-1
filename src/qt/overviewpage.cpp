@@ -46,13 +46,13 @@ public:
         int halfheight = (mainRect.height() - 2*ypad)/2;
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
         QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
-        QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+        QColor blue(0x25, 0x63, 0xEB);
         QPixmap iconPixmap = icon.pixmap(DECORATION_SIZE, DECORATION_SIZE);
         QImage iconImg = iconPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
         for (int x = iconImg.width(); x--; ) {
             for (int y = iconImg.height(); y--; ) {
                 const QRgb rgb = iconImg.pixel(x, y);
-                iconImg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+                iconImg.setPixel(x, y, qRgba(blue.red(), blue.green(), blue.blue(), qAlpha(rgb)));
             }
         }
         icon = QIcon(QPixmap::fromImage(iconImg));
@@ -78,16 +78,6 @@ public:
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
             QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
-            QColor themePrimary = ThemeManager::instance()->currentColors().primary;
-            QPixmap wpm = iconWatchonly.pixmap(16, 16);
-            QImage wimg = wpm.toImage().convertToFormat(QImage::Format_ARGB32);
-            for (int x = wimg.width(); x--; ) {
-                for (int y = wimg.height(); y--; ) {
-                    const QRgb rgb = wimg.pixel(x, y);
-                    wimg.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
-                }
-            }
-            iconWatchonly = QIcon(QPixmap::fromImage(wimg));
             iconWatchonly.paint(painter, watchonlyRect);
         }
 

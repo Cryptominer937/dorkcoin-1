@@ -549,13 +549,13 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
     {
         QIcon icon = qvariant_cast<QIcon>(index.data(RawDecorationRole));
-        QColor themePrimary = ThemeManager::instance()->currentColors().primary;
+        QColor blue(0x25, 0x63, 0xEB);
         QPixmap pm = icon.pixmap(24, 24);
         QImage img = pm.toImage().convertToFormat(QImage::Format_ARGB32);
         for (int x = img.width(); x--; ) {
             for (int y = img.height(); y--; ) {
                 const QRgb rgb = img.pixel(x, y);
-                img.setPixel(x, y, qRgba(themePrimary.red(), themePrimary.green(), themePrimary.blue(), qAlpha(rgb)));
+                img.setPixel(x, y, qRgba(blue.red(), blue.green(), blue.blue(), qAlpha(rgb)));
             }
         }
         return QIcon(QPixmap::fromImage(img));

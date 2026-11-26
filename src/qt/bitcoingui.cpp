@@ -1306,11 +1306,8 @@ void BitcoinGUI::refreshThemeIcons()
     for (TransactionView *tv : txViews)
         tv->refreshThemeIcons();
 
-    // Force the toolbar and all child widgets to re-polish and repaint.
-    style()->unpolish(this);
-    style()->polish(this);
+    // Repaint the main window and its children with the new stylesheet.
     update();
-    QCoreApplication::sendPostedEvents(this, QEvent::UpdateRequest);
 }
 
 static bool ThreadSafeMessageBox(BitcoinGUI *gui, const std::string& message, const std::string& caption, unsigned int style)
